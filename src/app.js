@@ -3,6 +3,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
 import users from "./database";
+import "dotenv/config";
 
 const PORT = 3001;
 const app = express();
@@ -46,7 +47,7 @@ const ensureAuth = (req, res, next) => {
 
   const token = authToken.split(" ")[1];
 
-  return jwt.verify(token, "SECRET_KEY", (error, decoded) => {
+  return jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
     if (error) {
       return res.status(401).json({
         message: "Missing authorization headers",
@@ -66,7 +67,52 @@ const ensureAdm = (req, res, next) => {
 
   if (user.isAdm) return next();
 
-  return res.status(401).json({ message: "missing admin permissions" });
+  return res.status(403).json({ message: "missing admin permissions" });
+};
+
+const ensureUserExistsById = (req, res, next) => {
+  let id;
+
+  switch (req.method) {
+    case "PATCH":
+    case "DELETE":
+      id = req.params.id;
+      break;
+    case "GET":
+      id = req.user.uuid;
+      break;
+  }
+
+  const userIndex = users.findIndex((user) => user.uuid === id);
+
+  if (userIndex === -1) {
+    return res.status(401).json({ message: "Missing authorization headers" });
+  }
+
+  switch (req.method) {
+    case "DELETE":
+      req.deleteUserIndex = userIndex;
+      break;
+    case "GET":
+      req.retrieveUserIndex = userIndex;
+      break;
+    case "PATCH":
+      req.updateUserIndex = userIndex;
+      break;
+  }
+
+  next();
+};
+
+const checkAdmPermissions = (req, res, next) => {
+  const idUserTarget = req.params.id;
+  const idUserSession = req.user.uuid;
+  const userSession = users.find((user) => user.uuid === idUserSession);
+
+  if (idUserTarget === idUserSession) return next();
+  if (idUserTarget !== idUserSession && userSession.isAdm) return next();
+
+  return res.status(403).json({ message: "missing admin permissions" });
 };
 
 // Services---------------------------------------------------------
@@ -90,7 +136,7 @@ const createUserService = async (userData) => {
 const createSessionService = (email, userIndex) => {
   const { uuid } = users[userIndex];
 
-  const token = jwt.sign({ email }, "SECRET_KEY", {
+  const token = jwt.sign({ email }, process.env.SECRET_KEY, {
     expiresIn: "24h",
     subject: uuid,
   });
@@ -99,6 +145,38 @@ const createSessionService = (email, userIndex) => {
 };
 
 const listUsersService = () => [200, users];
+
+const retrieveUserService = (retrieveUserIndex) => {
+  const foundUser = { ...users[retrieveUserIndex] };
+
+  delete foundUser.password;
+
+  return [200, foundUser];
+};
+
+const updateUserService = async (updateUserIndex, updateUserData) => {
+  const { name, email, password } = updateUserData;
+
+  const userUpdated = { ...users[updateUserIndex] };
+
+  if (name) userUpdated.name = name;
+  if (email) userUpdated.email = email;
+  if (email) userUpdated.password = await hash(password, 10);
+  userUpdated.updatedOn = new Date();
+
+  users[updateUserIndex] = userUpdated;
+
+  const userResponse = { ...userUpdated };
+
+  delete userResponse.password;
+
+  return [200, userResponse];
+};
+
+const deleteUserService = (deleteUserIndex) => {
+  users.splice(deleteUserIndex, 1);
+  return [204, {}];
+};
 
 // Controllers-------------------------------------------------------
 
@@ -117,9 +195,20 @@ const listUsersController = (req, res) => {
   return res.status(status).json(users);
 };
 
-const retrieveUserController = (req, res) => {};
-const updateUserController = (req, res) => {};
-const deleteUserController = (req, res) => {};
+const retrieveUserController = (req, res) => {
+  const [status, user] = retrieveUserService(req.retrieveUserIndex);
+  return res.status(status).json(user);
+};
+
+const updateUserController = async (req, res) => {
+  const [status, user] = await updateUserService(req.updateUserIndex, req.body);
+  return res.status(status).json(user);
+};
+
+const deleteUserController = (req, res) => {
+  const [status, message] = deleteUserService(req.deleteUserIndex);
+  return res.status(status).json(message);
+};
 
 // Routes------------------------------------------------------------
 
@@ -131,9 +220,26 @@ app.post(
   createSessionController
 );
 app.get("/users", ensureAuth, ensureAdm, listUsersController);
-app.get("/users/profile", retrieveUserController);
-app.patch("/users/:uuid", updateUserController);
-app.delete("/users/:uuid", deleteUserController);
+app.get(
+  "/users/profile",
+  ensureAuth,
+  ensureUserExistsById,
+  retrieveUserController
+);
+app.patch(
+  "/users/:id",
+  ensureAuth,
+  ensureUserExistsById,
+  checkAdmPermissions,
+  updateUserController
+);
+app.delete(
+  "/users/:id",
+  ensureAuth,
+  ensureUserExistsById,
+  checkAdmPermissions,
+  deleteUserController
+);
 
 app.listen(PORT, () => console.log(`App rodando na localhost:${PORT}`));
 export default app;
