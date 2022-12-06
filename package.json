@@ -1,11 +1,11 @@
 {
   "name": "m4-entrega-sprint1-felipe",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
   "author": "FelipeSilva",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon",
     "test": "cross-env SECRET_KEY=secret_key jest --forceExit"
   },
   "dependencies": {
