@@ -101,7 +101,7 @@ const ensureUserExistsById = (req, res, next) => {
       break;
   }
 
-  next();
+  return next();
 };
 
 const checkAdmPermissions = (req, res, next) => {
