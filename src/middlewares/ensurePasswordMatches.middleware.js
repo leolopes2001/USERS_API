@@ -2,7 +2,7 @@ import { compare } from "bcryptjs";
 import users from "../database";
 
 const ensurePasswordMatchesMiddleware = async (req, res, next) => {
-  const { password } = users[req.userIndex];
+  const { password } = req.user
 
   const passwordMatch = await compare(req.body.password, password);
 

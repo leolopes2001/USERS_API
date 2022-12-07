@@ -1,10 +1,24 @@
-import users from "../database";
+import { database } from "../database";
 
-const ensureUserExistsMiddleware = (req, res, next) => {
-  const userIndex = users.findIndex((user) => user.email === req.body.email);
-  req.userIndex = userIndex;
+const ensureUserExistsMiddleware = async (req, res, next) => {
+  const user = await database
+    .query(
+      `
+      SELECT 
+      	*
+      FROM 
+      	users 
+      WHERE 
+      	email = $1;
+      `,
+      [req.body.email]
+    )
+    .then((res) => res.rows[0]);
 
-  if (userIndex !== -1) return next();
+  if (user) {
+    req.user = { ...user };
+    return next();
+  }
 
   return res.status(401).json({ message: "Wrong email/password" });
 };
