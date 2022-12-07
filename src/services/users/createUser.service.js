@@ -15,9 +15,6 @@ const createUserService = async (userData) => {
     [name, email, password, isAdm]
   );
 
-  console.log(queryResponse.rows);
-  console.log(queryResponse.rows[0]);
-
   return [201, queryResponse.rows[0]];
 };
 

@@ -1,7 +1,12 @@
-import users from "../database";
+import users, { database } from "../database";
 
 const ensureAdmMiddleware = (req, res, next) => {
   const user = users.find((user) => user.uuid === req.user.uuid);
+
+  const isAdm = database.query(
+    `
+
+      `)
 
   if (user.isAdm) return next();
 
