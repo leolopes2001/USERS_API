@@ -1,11 +1,9 @@
-import users from "../../database";
 
-const retrieveUserService = (retrieveUserIndex) => {
-  const foundUser = { ...users[retrieveUserIndex] };
 
-  delete foundUser.password;
+const retrieveUserService = (user) => {
+  delete user.password;
 
-  return [200, foundUser];
+  return [200, user];
 };
 
 export default retrieveUserService;

@@ -1,23 +1,32 @@
 import { hash } from "bcryptjs";
-import users from "../../database";
+import { database } from "../../database";
 
-const updateUserService = async (updateUserIndex, updateUserData) => {
-  const { name, email, password } = updateUserData;
+const updateUserService = async (userId, updateUserData) => {
+  const { name, email } = updateUserData;
+  let password = "";
+  if (updateUserData.password) {
+    password = await hash(updateUserData.password, 10);
+  }
 
-  const userUpdated = { ...users[updateUserIndex] };
+  const updatedOn = new Date();
 
-  if (name) userUpdated.name = name;
-  if (email) userUpdated.email = email;
-  if (email) userUpdated.password = await hash(password, 10);
-  userUpdated.updatedOn = new Date();
+  const userUpdated = await database
+    .query(
+      `UPDATE 
+        users
+      SET 
+        name = COALESCE(NULLIF($1,''), name),
+        email = COALESCE(NULLIF($2,''), email),
+        password = COALESCE(NULLIF($3,''), password),
+        updated_on = $4
+      WHERE id = $5 RETURNING *;
+    `,
+      [name || "", email || "", password, updatedOn, userId]
+    )
+    .then((res) => res.rows[0]);
 
-  users[updateUserIndex] = userUpdated;
-
-  const userResponse = { ...userUpdated };
-
-  delete userResponse.password;
-
-  return [200, userResponse];
+  console.log(userUpdated);
+  return [200, userUpdated];
 };
 
 export default updateUserService;

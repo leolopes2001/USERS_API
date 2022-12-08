@@ -2,20 +2,27 @@ import { hash } from "bcryptjs";
 import { database } from "../../database";
 
 const createUserService = async (userData) => {
-  const { name, email, isAdm } = userData;
+  const { name, email, is_adm } = userData;
 
+  const created_on = new Date();
+  const updated_on = new Date();
   const password = await hash(userData.password, 10);
 
-  const queryResponse = await database.query(
-    `INSERT INTO
-	        users(name,email,"password",isAdm)
+  const newUser = await database
+    .query(
+      `INSERT INTO
+	        users(name,email,"password",is_adm, created_on, updated_on)
       VALUES
-	        ($1, $2, $3, $4)
+	        ($1, $2, $3, $4, $5, $6)
       RETURNING *;`,
-    [name, email, password, isAdm]
-  );
+      [name, email, password, is_adm, created_on, updated_on]
+    )
+    .then((res) => res.rows[0]);
 
-  return [201, queryResponse.rows[0]];
+  delete newUser.password;
+
+  console.log(newUser);
+  return [201, newUser];
 };
 
 export default createUserService;

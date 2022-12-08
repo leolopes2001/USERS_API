@@ -9,18 +9,18 @@ const createUserController = async (req, res) => {
   return res.status(status).json(user);
 };
 
-const listUsersController = (req, res) => {
-  const [status, users] = listUsersService();
+const listUsersController = async (req, res) => {
+  const [status, users] = await listUsersService();
   return res.status(status).json(users);
 };
 
 const retrieveUserController = (req, res) => {
-  const [status, user] = retrieveUserService(req.retrieveUserIndex);
+  const [status, user] = retrieveUserService(req.user);
   return res.status(status).json(user);
 };
 
 const updateUserController = async (req, res) => {
-  const [status, user] = await updateUserService(req.updateUserIndex, req.body);
+  const [status, user] = await updateUserService(req.user.id, req.body);
   return res.status(status).json(user);
 };
 

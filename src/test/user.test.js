@@ -7,7 +7,7 @@ const userAdm = {
   name: "felipe",
   email: "felipe@kenzie.com",
   password: "123456",
-  isAdm: true,
+  is_adm: true,
 };
 
 const loginAdm = {
@@ -16,13 +16,13 @@ const loginAdm = {
 };
 
 const userNotAdm = {
-  uuid: "8643c029-04f9-448c-9b9b-630ad89db8b3",
+  id: "8643c029-04f9-448c-9b9b-630ad89db8b3",
   name: "joana",
   email: "joana@kenzie.com",
   password: bcrypt.hashSync("123456", 8),
-  isAdm: false,
-  createdOn: "2022-11-17T11:42:25.262Z",
-  updatedOn: "2022-11-17T11:42:25.262Z",
+  is_adm: false,
+  created_on: "2022-11-17T11:42:25.262Z",
+  updated_on: "2022-11-17T11:42:25.262Z",
 };
 
 const loginNotAdm = {
@@ -39,7 +39,7 @@ users.push({
   name: "fabio",
   email: "fabio@kenzie.com",
   password: bcrypt.hashSync("123456", 8),
-  isAdm: true,
+  is_adm: true,
 });
 users.push(userNotAdm);
 
@@ -50,10 +50,10 @@ describe("Testes rota POST /users", () => {
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("name");
     expect(response.body).toHaveProperty("email");
-    expect(response.body).toHaveProperty("createdOn");
-    expect(response.body).toHaveProperty("updatedOn");
-    expect(response.body).toHaveProperty("uuid");
-    expect(response.body).toHaveProperty("isAdm");
+    expect(response.body).toHaveProperty("created_on");
+    expect(response.body).toHaveProperty("updated_on");
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("is_adm");
     expect(response.body).not.toHaveProperty("password");
   });
 
@@ -120,12 +120,12 @@ describe("Testando rota GET /users/profile", () => {
       .get("/users/profile")
       .set("Authorization", `Bearer ${tokenNotAdm}`);
 
-    expect(response.body).toHaveProperty("uuid");
-    expect(response.body).toHaveProperty("createdOn");
-    expect(response.body).toHaveProperty("updatedOn");
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("created_on");
+    expect(response.body).toHaveProperty("updated_on");
     expect(response.body).toHaveProperty("name");
     expect(response.body).toHaveProperty("email");
-    expect(response.body).toHaveProperty("isAdm");
+    expect(response.body).toHaveProperty("is_adm");
     expect(response.body).not.toHaveProperty("password");
   });
 
@@ -163,12 +163,12 @@ describe("Testando rota PATCH /users/<uuid>", () => {
       .send(updateNotAdm)
       .set("Authorization", `Bearer ${tokenNotAdm}`);
 
-    expect(response.body).toHaveProperty("uuid");
-    expect(response.body).toHaveProperty("createdOn");
-    expect(response.body).toHaveProperty("updatedOn");
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("created_on");
+    expect(response.body).toHaveProperty("updated_on");
     expect(response.body).toHaveProperty("name", updateNotAdm.name);
     expect(response.body).toHaveProperty("email");
-    expect(response.body).toHaveProperty("isAdm", userNotAdm.isAdm);
+    expect(response.body).toHaveProperty("is_adm", userNotAdm.isAdm);
     expect(response.body).not.toHaveProperty("password");
   });
 
