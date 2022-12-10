@@ -9,7 +9,7 @@ const createSessionService = (email, userIndex) => {
     subject: uuid,
   });
 
-  return [200, { token }];
+  return { token };
 };
 
 export default createSessionService;

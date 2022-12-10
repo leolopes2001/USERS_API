@@ -1,12 +1,21 @@
 import users from "../database";
+import { AppError } from "../errors";
 
 const ensureUserExistsMiddleware = (req, res, next) => {
-  const userIndex = users.findIndex((user) => user.email === req.body.email);
-  req.userIndex = userIndex;
+  try {
+    const userIndex = users.findIndex((user) => user.email === req.body.email);
 
-  if (userIndex !== -1) return next();
+    if (userIndex === -1) {
+      throw new AppError("Wrong email/password", 401);
+    }
 
-  return res.status(401).json({ message: "Wrong email/password" });
+    req.userIndex = userIndex;
+
+    return next();
+  } catch ({ statusCode, message }) {
+    console.log(message);
+    return res.status(statusCode).json(message);
+  }
 };
 
 export default ensureUserExistsMiddleware;

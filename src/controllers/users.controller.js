@@ -25,8 +25,8 @@ const updateUserController = async (req, res) => {
 };
 
 const deleteUserController = (req, res) => {
-  const [status, message] = deleteUserService(req.deleteUserIndex);
-  return res.status(status).json(message);
+  const data = deleteUserService(req.deleteUserIndex);
+  return res.status(204).json(data);
 };
 
 export {

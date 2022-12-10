@@ -1,7 +1,7 @@
 import request from "supertest";
 import * as bcrypt from "bcryptjs";
 import users from "../database";
-import app from "../app";
+import { app } from "../app";
 
 const userAdm = {
   name: "felipe",
