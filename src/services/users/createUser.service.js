@@ -1,21 +1,22 @@
-import { hash } from "bcryptjs";
 import { v4 } from "uuid";
 import users from "../../database";
+import { userReturnedData } from "../../schemas/user.schemas";
 
 const createUserService = async (userData) => {
+  console.log(userData);
   const newUser = {
-    ...userData,
     uuid: v4(),
-    password: await hash(userData.password, 10),
+    ...userData,
     createdOn: new Date(),
     updatedOn: new Date(),
   };
+  users.push(newUser);
 
-  users.push({ ...newUser });
+  const returnedUser = await userReturnedData.validate(newUser, {
+    stripUnknown: true,
+  });
 
-  delete newUser.password;
-
-  return [201, newUser];
+  return [201, returnedUser];
 };
 
 export default createUserService;

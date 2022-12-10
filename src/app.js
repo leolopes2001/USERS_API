@@ -1,7 +1,8 @@
 import express, { json } from "express";
+import sessionRoutes from "./routers/session.routes";
 
 import userRoutes from "./routers/users.routes";
-import sessionRoutes from "./routers/login.routes";
+
 
 const app = express();
 app.use(json());

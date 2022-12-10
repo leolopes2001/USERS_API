@@ -1,23 +1,31 @@
 import { hash } from "bcryptjs";
 import users from "../../database";
+import { userReturnedData } from "../../schemas/user.schemas";
 
 const updateUserService = async (updateUserIndex, updateUserData) => {
   const { name, email, password } = updateUserData;
 
+  
+  console.log(updateUserData);
   const userUpdated = { ...users[updateUserIndex] };
+
 
   if (name) userUpdated.name = name;
   if (email) userUpdated.email = email;
-  if (email) userUpdated.password = await hash(password, 10);
+  if (password) userUpdated.password = password;
   userUpdated.updatedOn = new Date();
 
   users[updateUserIndex] = userUpdated;
 
-  const userResponse = { ...userUpdated };
+  console.log(userUpdated);
 
-  delete userResponse.password;
+  const updatedUser = await userReturnedData.validate(userUpdated, {
+    stripUnknown: true,
+  });
 
-  return [200, userResponse];
+  console.log("-------------------");
+  console.log(updatedUser);
+  return [200, updatedUser];
 };
 
 export default updateUserService;

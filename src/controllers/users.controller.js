@@ -5,22 +5,25 @@ import retrieveUserService from "../services/users/retrieveUser.service";
 import updateUserService from "../services/users/updateUser.service";
 
 const createUserController = async (req, res) => {
-  const [status, user] = await createUserService(req.body);
+  const [status, user] = await createUserService(req.validatedBody);
   return res.status(status).json(user);
 };
 
-const listUsersController = (req, res) => {
-  const [status, users] = listUsersService();
+const listUsersController = async (req, res) => {
+  const [status, users] = await listUsersService();
   return res.status(status).json(users);
 };
 
-const retrieveUserController = (req, res) => {
-  const [status, user] = retrieveUserService(req.retrieveUserIndex);
+const retrieveUserController = async (req, res) => {
+  const [status, user] = await retrieveUserService(req.retrieveUserIndex);
   return res.status(status).json(user);
 };
 
 const updateUserController = async (req, res) => {
-  const [status, user] = await updateUserService(req.updateUserIndex, req.body);
+  const [status, user] = await updateUserService(
+    req.updateUserIndex,
+    req.validatedBody
+  );
   return res.status(status).json(user);
 };
 

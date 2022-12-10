@@ -1,11 +1,16 @@
 import users from "../../database";
+import { userReturnedData } from "../../schemas/user.schemas";
 
-const retrieveUserService = (retrieveUserIndex) => {
+const retrieveUserService = async (retrieveUserIndex) => {
   const foundUser = { ...users[retrieveUserIndex] };
 
-  delete foundUser.password;
+  const user = await userReturnedData.validate(foundUser, {
+    stripUnknown: true,
+  });
 
-  return [200, foundUser];
+  return [200, user];
 };
 
 export default retrieveUserService;
+
+
