@@ -11,10 +11,17 @@ import ensureAdmMiddleware from "../middlewares/ensureAdm.middleware";
 import ensureAuthMiddleware from "../middlewares/ensureAuth.middleware";
 import ensureUserExistsByIdMiddleware from "../middlewares/ensureUserExistsById.middleware";
 import ensureUserNotExistsMiddleware from "../middlewares/ensureUserNotExists.middlewares";
+import ensureDataIsValidMiddleware from "../middlewares/ensureDataIsValid.middleware";
+import { createUserSchema, updateUserSchema } from "../schemas/user.schemas";
 
 const userRoutes = Router();
 
-userRoutes.post("", ensureUserNotExistsMiddleware, createUserController);
+userRoutes.post(
+  "",
+  ensureDataIsValidMiddleware(createUserSchema),
+  ensureUserNotExistsMiddleware,
+  createUserController
+);
 
 userRoutes.get(
   "",
@@ -30,6 +37,7 @@ userRoutes.get(
 );
 userRoutes.patch(
   "/:id",
+  ensureDataIsValidMiddleware(updateUserSchema),
   ensureAuthMiddleware,
   ensureUserExistsByIdMiddleware,
   checkAdmPermissionsMiddleware,

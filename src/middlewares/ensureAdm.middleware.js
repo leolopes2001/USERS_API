@@ -1,5 +1,6 @@
 import { database } from "../database";
 
+
 const ensureAdmMiddleware = async (req, res, next) => {
   const user = await database
     .query(
@@ -13,9 +14,17 @@ const ensureAdmMiddleware = async (req, res, next) => {
     )
     .then((res) => res.rows[0]);
 
-  if (user.isAdm) return next();
 
-  return res.status(403).json({ message: "missing admin permissions" });
+
+  if (!user) {
+    return res.status(403).json({ message: "missing admin permissions" });
+  }
+
+  if (!user.isAdm) {
+    return res.status(403).json({ message: "missing admin permissions" });
+  }
+  
+  if (user.isAdm) return next();
 };
 
 export default ensureAdmMiddleware;
