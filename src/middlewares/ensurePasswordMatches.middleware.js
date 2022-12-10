@@ -3,7 +3,7 @@ import users from "../database";
 import { AppError } from "../errors";
 
 const ensurePasswordMatchesMiddleware = async (req, res, next) => {
-  const { password } = users[req.userIndex];
+  const { password } = req.user
 
   const passwordMatch = await compare(req.body.password, password);
 

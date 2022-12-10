@@ -1,6 +1,6 @@
-import users from "../database";
+import { database } from "../database";
 
-const ensureUserExistsByIdMiddleware = (req, res, next) => {
+const ensureUserExistsByIdMiddleware = async (req, res, next) => {
   let id;
 
   switch (req.method) {
@@ -9,13 +9,16 @@ const ensureUserExistsByIdMiddleware = (req, res, next) => {
       id = req.params.id;
       break;
     case "GET":
-      id = req.user.uuid;
+      id = req.user.id;
       break;
   }
+  const foundUser = await database
+    .query(`SELECT * FROM users WHERE id = $1`, [id])
+    .then((res) => res.rows[0]);
 
-  const userIndex = users.findIndex((user) => user.uuid === id);
+  // const userIndex = users.findIndex((user) => user.uuid === id);
 
-  if (userIndex === -1) {
+  if (!foundUser) {
     return res.status(401).json({ message: "Missing authorization headers" });
   }
 
@@ -24,10 +27,10 @@ const ensureUserExistsByIdMiddleware = (req, res, next) => {
       req.deleteUserIndex = userIndex;
       break;
     case "GET":
-      req.retrieveUserIndex = userIndex;
+      req.user = { ...foundUser };
       break;
     case "PATCH":
-      req.updateUserIndex = userIndex;
+      req.user = { ...foundUser };
       break;
   }
 

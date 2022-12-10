@@ -18,7 +18,7 @@ const ensureAuthMiddleware = (req, res, next) => {
     }
 
     req.user = {
-      uuid: decoded.sub,
+      id: decoded.sub,
     };
 
     return next();

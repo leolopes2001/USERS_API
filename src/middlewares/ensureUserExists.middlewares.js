@@ -1,21 +1,34 @@
 import users from "../database";
 import { AppError } from "../errors";
 
-const ensureUserExistsMiddleware = (req, res, next) => {
-  try {
-    const userIndex = users.findIndex((user) => user.email === req.body.email);
+import { database } from "../database";
 
-    if (userIndex === -1) {
-      throw new AppError("Wrong email/password", 401);
-    }
+const ensureUserExistsMiddleware = async (req, res, next) => {
+  const user = await database
+    .query(
+      `
+      SELECT 
+      	*
+      FROM 
+      	users 
+      WHERE 
+      	email = $1;
+      `,
+      [req.body.email]
+    )
+    .then((res) => res.rows[0]);
 
-    req.userIndex = userIndex;
-
+  if (user) {
+    req.user = { ...user };
     return next();
-  } catch ({ statusCode, message }) {
-    console.log(message);
-    return res.status(statusCode).json(message);
   }
+
+  if (userIndex === undefined) {
+    throw new AppError("Wrong email/password", 401);
+  }
+  req.userIndex = userIndex;
+
+  return next();
 };
 
 export default ensureUserExistsMiddleware;

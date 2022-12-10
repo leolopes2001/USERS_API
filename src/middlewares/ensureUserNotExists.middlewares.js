@@ -1,7 +1,9 @@
-import users from "../database";
+import { database } from "../database";
 
-const ensureUserNotExistsMiddleware = (req, res, next) => {
-  const foundUser = users.find((user) => user.email === req.body.email);
+const ensureUserNotExistsMiddleware = async (req, res, next) => {
+  const foundUser = await database
+    .query(`SELECT email FROM users WHERE email = $1;`, [req.body.email])
+    .then((res) => res.rows[0]);
 
   if (!foundUser) return next();
 

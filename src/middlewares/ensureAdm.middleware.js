@@ -1,7 +1,17 @@
-import users from "../database";
+import { database } from "../database";
 
-const ensureAdmMiddleware = (req, res, next) => {
-  const user = users.find((user) => user.uuid === req.user.uuid);
+const ensureAdmMiddleware = async (req, res, next) => {
+  const user = await database
+    .query(
+      `SELECT 
+        * 
+    FROM 
+        users 
+    WHERE 
+        id = $1;`,
+      [req.user.id]
+    )
+    .then((res) => res.rows[0]);
 
   if (user.isAdm) return next();
 
