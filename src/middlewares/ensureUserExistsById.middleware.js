@@ -21,7 +21,6 @@ const ensureUserExistsByIdMiddleware = async (req, res, next) => {
   if (!foundUser) {
     return res.status(401).json({ message: "Missing authorization headers" });
   }
-
   switch (req.method) {
     case "DELETE":
       req.deleteUserIndex = userIndex;

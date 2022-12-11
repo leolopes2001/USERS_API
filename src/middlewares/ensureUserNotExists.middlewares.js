@@ -1,13 +1,16 @@
 import { database } from "../database";
+import { AppError } from "../errors";
 
 const ensureUserNotExistsMiddleware = async (req, res, next) => {
-  const foundUser = await database
-    .query(`SELECT email FROM users WHERE email = $1;`, [req.body.email])
-    .then((res) => res.rows[0]);
+  const searchUser = await database.query(
+    `SELECT email FROM users WHERE email = $1;`,
+    [req.body.email]
+  );
 
-  if (!foundUser) return next();
+  if (searchUser.rowCount > 0)
+    throw new AppError("E-mail already registered", 409);
 
-  return res.status(409).json({ message: "E-mail already registered" });
+  return next();
 };
 
 export default ensureUserNotExistsMiddleware;

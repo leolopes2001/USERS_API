@@ -1,7 +1,6 @@
 import "express-async-errors";
 import express, { json } from "express";
 import userRoutes from "./routers/users.routes";
-import sessionRoutes from "./routers/login.routes";
 import { errorHandler } from "./errors";
 import sessionRoutes from "./routers/session.routes";
 import userRoutes from "./routers/users.routes";

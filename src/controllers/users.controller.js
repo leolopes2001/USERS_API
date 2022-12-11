@@ -5,8 +5,8 @@ import retrieveUserService from "../services/users/retrieveUser.service";
 import updateUserService from "../services/users/updateUser.service";
 
 const createUserController = async (req, res) => {
-  const [status, user] = await createUserService(req.validatedBody);
-  return res.status(status).json(user);
+  const user = await createUserService(req.validatedBody);
+  return res.status(201).json(user);
 };
 
 const listUsersController = async (req, res) => {
@@ -14,17 +14,18 @@ const listUsersController = async (req, res) => {
   return res.status(200).json(users);
 };
 
-
 const retrieveUserController = async (req, res) => {
   const [status, user] = await retrieveUserService(req.retrieveUserIndex);
   return res.status(status).json(user);
 };
 
 const updateUserController = async (req, res) => {
-  const user = await updateUserService(
-    req.user.id,
-    req.validatedBody
-  );
+  if (!Object.keys(req.validatedBody).length) {
+    return {};
+  }
+  console.log(req.validatedBody);
+
+  const user = await updateUserService(req.user.id, req.validatedBody);
   return res.status(200).json(user);
 };
 

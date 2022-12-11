@@ -8,12 +8,12 @@ class AppError extends Error {
 
 const errorHandler = (error, req, res, next) => {
   if (error instanceof AppError) {
-    return res.status(error.satusCode).json(error.message);
+    return res.status(error.statusCode).json(error.message);
   }
 
   console.log(error);
 
-  return response.status(500).json({
+  return res.status(500).json({
     message: "Internal server error",
   });
 };

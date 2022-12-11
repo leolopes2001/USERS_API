@@ -7,27 +7,26 @@ const createUserSchema = yup.object().shape({
   password: yup
     .string()
     .min(4)
-    .transform((password) => hashSync(password, 10))
+    .transform((pass) => hashSync(pass, 10))
     .required(),
-  isAdm: yup.boolean().required(),
+  is_adm: yup.boolean().required(),
 });
 
 const userReturnedData = yup.object().shape({
-  uuid: yup.string(),
+  id: yup.string(),
   name: yup.string(),
   email: yup.string().email(),
-  isAdm: yup.boolean(),
-  createdOn: yup.date(),
-  updatedOn: yup.date(),
+  is_adm: yup.boolean(),
+  created_on: yup.date(),
+  updated_on: yup.date(),
 });
 
 const updateUserSchema = yup.object().shape({
   name: yup.string(),
-  email: yup.string().email(),
   password: yup
     .string()
     .min(4)
-    .transform((password) => hashSync(password, 10)),
+    .transform((pass) => hashSync(pass, 10)),
 });
 
 const listUsersReturnedData = yup.array(userReturnedData);

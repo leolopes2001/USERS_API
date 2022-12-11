@@ -1,40 +1,29 @@
 import { userReturnedData } from "../../schemas/user.schemas";
-import { hash } from "bcryptjs";
 
 import { database } from "../../database";
 
 const updateUserService = async (userId, updateUserData) => {
-  const { name, email } = updateUserData;
-  let password = "";
-  if (updateUserData.password) {
-    password = await hash(updateUserData.password, 10);
-  }
-  
-  const updatedOn = new Date();
-  
+  const updated_on = new Date();
+
+  let query = "UPDATE users SET ";
+  const keys = Object.keys(updateUserData);
+  const values = Object.values(updateUserData);
+
+  keys.forEach((key, index) => {
+    query += `${key} = \$${index + 1}, `;
+  });
+
+  query += `updated_on = \$${keys.length + 1} `;
+
+  query += `WHERE id = \$${keys.length + 2} RETURNING *;`;
+
   const userUpdated = await database
-  .query(
-    `UPDATE 
-        users
-    SET 
-        name = COALESCE(NULLIF($1,''), name),
-        email = COALESCE(NULLIF($2,''), email),
-        password = COALESCE(NULLIF($3,''), password),
-          updated_on = $4
-    WHERE id = $5 RETURNING *;
-    `,
-      [name || "", email || "", password, updatedOn, userId]
-    )
+    .query(query, [...values, updated_on, userId])
     .then((res) => res.rows[0]);
 
-
-          return   await userReturnedData.validate(userUpdated, {
-      stripUnknown: true,
-    });
-
-  
-
-
-  }
+  return await userReturnedData.validate(userUpdated, {
+    stripUnknown: true,
+  });
+};
 
 export default updateUserService;
